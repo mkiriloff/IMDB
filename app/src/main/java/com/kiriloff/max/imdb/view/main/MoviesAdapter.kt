@@ -50,7 +50,10 @@ class MoviesAdapter() : RecyclerView.Adapter<MoviesAdapter.ViewHolder>() {
     }
 
     override fun onBindViewHolder(holder: MoviesAdapter.ViewHolder, position: Int) {
-        mMovies[position]?.let { holder.bind(it) }
+        val nextItem = mMovies[position]
+        if (null !in setOf(nextItem.title, nextItem.backdropPath, nextItem.overview, nextItem.releaseDate, nextItem.voteAverage, nextItem.id)) {
+            holder.bind(nextItem)
+        }
     }
 
     override fun getItemCount(): Int {
@@ -71,7 +74,6 @@ class MoviesAdapter() : RecyclerView.Adapter<MoviesAdapter.ViewHolder>() {
         }
 
         fun bind(movie: IMovie) {
-            if (null in setOf(movie.title, movie.backdropPath, movie.overview, movie.releaseDate, movie.voteAverage, movie.id)) return
 
             mTitle.text = movie.title
             mTagLine.text = movie.overview
