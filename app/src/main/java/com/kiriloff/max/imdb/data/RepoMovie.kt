@@ -1,0 +1,129 @@
+package com.kiriloff.max.imdb.data
+
+import com.kiriloff.max.imdb.data.api.IMovieApiInterface
+import com.kiriloff.max.imdb.domain.GenraImpl
+import com.kiriloff.max.imdb.domain.IRepoMovie
+import com.kiriloff.max.imdb.domain.MovieDetailsImpl
+import com.kiriloff.max.imdb.domain.ProductionContriteImpl
+import com.kiriloff.max.imdb.dto.MovieImpl
+import io.reactivex.Observable
+import io.reactivex.schedulers.Schedulers
+
+class RepoMovie(private val mMovieApiInterface: IMovieApiInterface) : IRepoMovie<MovieImpl, MovieDetailsImpl> {
+
+    private val API_KEY = "72b56103e43843412a992a8d64bf96e9"
+    private var lastQuery: String = ""
+    private var lastPage: Int = 0
+    private var totalPages: Int = 0
+
+    override fun getTopRatedMovies(): Observable<MutableList<MovieImpl>> {
+        return mMovieApiInterface.getTopRatedMovies(API_KEY)
+                .subscribeOn(Schedulers.io())
+                .flatMap {
+                    lastPage = it.page
+                    totalPages = it.totalPages
+                    Observable.fromIterable(it.results)
+                }
+                .map {
+                    MovieImpl(it.id).apply {
+                        title = it.title
+                        backdropPath = it.backdropPath
+                        releaseDate = it.releaseDate
+                        voteAverage = it.voteAverage
+                        overview = it.overview
+                    }
+                }
+                .toList()
+                .toObservable()
+    }
+
+    override fun getTopRatedMoviesNextPage(): Observable<MutableList<MovieImpl>> {
+        lastPage += 1
+        return mMovieApiInterface.getTopRatedMoviesNextPage(API_KEY, lastPage)
+                .subscribeOn(Schedulers.io())
+                .flatMap {
+                    lastPage = it.page
+                    totalPages = it.totalPages
+                    Observable.fromIterable(it.results)
+                }
+                .map {
+                    MovieImpl(it.id).apply {
+                        title = it.title
+                        backdropPath = it.backdropPath
+                        releaseDate = it.releaseDate
+                        voteAverage = it.voteAverage
+                        overview = it.overview
+                    }
+                }
+                .toList()
+                .toObservable()
+    }
+
+    override fun getMoviesByQuery(query: String): Observable<MutableList<MovieImpl>> {
+        this.lastQuery = query
+        return mMovieApiInterface.getMoviesByQuery(API_KEY, query)
+                .subscribeOn(Schedulers.computation())
+                .flatMap {
+                    lastPage = it.page
+                    totalPages = it.totalPages
+                    Observable.fromIterable(it.results)
+                }
+                .map {
+                    MovieImpl(it.id).apply {
+                        title = it.title
+                        backdropPath = it.backdropPath
+                        releaseDate = it.releaseDate
+                        voteAverage = it.voteAverage
+                        overview = it.overview
+                    }
+                }
+                .toList()
+                .toObservable()
+    }
+
+    override fun getMoviesByQueryNextPage(): Observable<MutableList<MovieImpl>> {
+        lastPage += 1
+        if (lastPage > totalPages) return Observable.empty()
+        return mMovieApiInterface.getMoviesByQueryNextPage(API_KEY, lastQuery, lastPage)
+                .subscribeOn(Schedulers.io())
+                .flatMap {
+                    lastPage = it.page
+                    totalPages = it.totalPages
+                    Observable.fromIterable(it.results)
+                }
+                .map {
+                    MovieImpl(it.id).apply {
+                        title = it.title
+                        backdropPath = it.backdropPath
+                        releaseDate = it.releaseDate
+                        voteAverage = it.voteAverage
+                        overview = it.overview
+                    }
+                }
+                .toList()
+                .toObservable()
+    }
+
+    override fun getMovieDetails(id: Int): Observable<MutableList<MovieDetailsImpl>> {
+        return mMovieApiInterface.getMovieDetails(id, API_KEY)
+                .subscribeOn(Schedulers.io())
+                .map {
+                    MovieDetailsImpl().apply {
+                        title = it.title
+                        backdropPath = it.backdropPath
+                        voteAverage = it.voteAverage
+                        homepage = it.homepage
+                        overview = it.overview
+                        tagline = it.tagline
+                        productionCountries = it.productionCountries
+                                ?.map { ProductionContriteImpl().apply { name = it.name } }
+                                ?.toList() ?: emptyList()
+                        genres = it.genres
+                                ?.map { GenraImpl().apply { name = it.name } }
+                                ?.toList() ?: emptyList()
+                    }
+                }
+                .toList()
+                .toObservable()
+    }
+}
