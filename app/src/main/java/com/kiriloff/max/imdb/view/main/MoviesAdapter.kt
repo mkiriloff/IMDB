@@ -50,10 +50,7 @@ class MoviesAdapter() : RecyclerView.Adapter<MoviesAdapter.ViewHolder>() {
     }
 
     override fun onBindViewHolder(holder: MoviesAdapter.ViewHolder, position: Int) {
-        val nextItem = mMovies[position]
-        if (null !in setOf(nextItem.title, nextItem.backdropPath, nextItem.overview, nextItem.releaseDate, nextItem.voteAverage, nextItem.id)) {
-            holder.bind(nextItem)
-        }
+        holder.bind(mMovies[position])
     }
 
     override fun getItemCount(): Int {
@@ -83,7 +80,7 @@ class MoviesAdapter() : RecyclerView.Adapter<MoviesAdapter.ViewHolder>() {
             GlideApp.with(mBackdropPath.context)
                     .load(IMAGE_KEY + movie.backdropPath)
                     .centerCrop()
-                    .into(mBackdropPath);
+                    .into(mBackdropPath)
         }
 
         override fun onClick(v: View) {

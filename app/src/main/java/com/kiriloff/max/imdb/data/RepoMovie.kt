@@ -11,6 +11,7 @@ class RepoMovie(private val mMovieApiInterface: IMovieApiInterface) : IRepoMovie
     private var lastQuery: String = ""
     private var lastPage: Int = 0
     private var totalPages: Int = 0
+    private val isValidData = fun(it: IMovie): Boolean = null !in setOf(it.title, it.backdropPath, it.overview, it.releaseDate, it.voteAverage, it.id)
 
     override fun getTopRatedMovies(): Observable<MutableList<MovieImpl>> {
         return mMovieApiInterface.getTopRatedMovies(API_KEY)
@@ -29,12 +30,13 @@ class RepoMovie(private val mMovieApiInterface: IMovieApiInterface) : IRepoMovie
                         overview = it.overview
                     }
                 }
+                .filter { isValidData(it) }
                 .toList()
                 .toObservable()
     }
 
     override fun getTopRatedMoviesNextPage(): Observable<MutableList<MovieImpl>> {
-        lastPage += 1
+        lastPage = lastPage.inc()
         return mMovieApiInterface.getTopRatedMoviesNextPage(API_KEY, lastPage)
                 .subscribeOn(Schedulers.io())
                 .flatMap {
@@ -51,6 +53,7 @@ class RepoMovie(private val mMovieApiInterface: IMovieApiInterface) : IRepoMovie
                         overview = it.overview
                     }
                 }
+                .filter { isValidData(it) }
                 .toList()
                 .toObservable()
     }
@@ -73,12 +76,13 @@ class RepoMovie(private val mMovieApiInterface: IMovieApiInterface) : IRepoMovie
                         overview = it.overview
                     }
                 }
+                .filter { isValidData(it) }
                 .toList()
                 .toObservable()
     }
 
     override fun getMoviesByQueryNextPage(): Observable<MutableList<MovieImpl>> {
-        lastPage += 1
+        lastPage = lastPage.inc()
         if (lastPage > totalPages) return Observable.empty()
         return mMovieApiInterface.getMoviesByQueryNextPage(API_KEY, lastQuery, lastPage)
                 .subscribeOn(Schedulers.io())
@@ -96,6 +100,7 @@ class RepoMovie(private val mMovieApiInterface: IMovieApiInterface) : IRepoMovie
                         overview = it.overview
                     }
                 }
+                .filter { isValidData(it) }
                 .toList()
                 .toObservable()
     }
