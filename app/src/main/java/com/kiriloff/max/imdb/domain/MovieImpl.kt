@@ -1,6 +1,4 @@
-package com.kiriloff.max.imdb.dto
-
-import com.kiriloff.max.imdb.domain.IMovie
+package com.kiriloff.max.imdb.domain
 
 class MovieImpl(override val id: Int?) : IMovie {
     override var title: String? = null

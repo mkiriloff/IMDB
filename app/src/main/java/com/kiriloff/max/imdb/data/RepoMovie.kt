@@ -1,11 +1,7 @@
 package com.kiriloff.max.imdb.data
 
 import com.kiriloff.max.imdb.data.api.IMovieApiInterface
-import com.kiriloff.max.imdb.domain.GenraImpl
-import com.kiriloff.max.imdb.domain.IRepoMovie
-import com.kiriloff.max.imdb.domain.MovieDetailsImpl
-import com.kiriloff.max.imdb.domain.ProductionContriteImpl
-import com.kiriloff.max.imdb.dto.MovieImpl
+import com.kiriloff.max.imdb.domain.*
 import io.reactivex.Observable
 import io.reactivex.schedulers.Schedulers
 
